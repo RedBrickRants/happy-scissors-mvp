@@ -27,6 +27,19 @@ def staff_list(request):
     
     return Response(staff_data)
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated, IsAdminUserCustom])
+#we can use staff_id here to delete staff member as django automatically creates id field for each model
+def staff_delete(request, staff_id):
+    try:
+        staff = Staff.objects.get(id=staff_id)
+        staff.is_active = False
+        staff.save()
+        return Response({'message': 'Staff member deactivated successfully'})
+    except Staff.DoesNotExist:
+        return Response({'error': 'Staff member not found'}, status=404)
+    
+
 #allows admin users to create staff members
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])

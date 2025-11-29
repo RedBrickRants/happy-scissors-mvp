@@ -52,6 +52,35 @@ const Services = ({ token }) => {
     })
   }
 
+  const handleDeleteService = async (serviceId, serviceName) => {
+  if (!window.confirm(`Are you sure you want to delete ${serviceName}?`)) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`http://localhost:8000/api/services/${serviceId}/delete/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      alert('Service deleted successfully!');
+      // Refresh the services list
+      fetchServices();
+    } else {
+      const errorData = await response.json();
+      alert(`Error: ${errorData.error}`);
+    }
+  } catch (error) {
+    console.error('Error deleting service:', error);
+    alert('Failed to delete service');
+  }
+};
+
+
   if (loading) return <div>Loading services...</div>
 
   return (
@@ -103,6 +132,21 @@ const Services = ({ token }) => {
               <td>{service.name}</td>
               <td>{service.duration}</td>
               <td>${service.price}</td>
+              <td>
+                <button 
+                  onClick={() => handleDeleteService(service.id, service.name)}
+                  style={{
+                    background: '#f56565',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Delete
+                </button>
+            </td>
             </tr>
           ))}
         </tbody>

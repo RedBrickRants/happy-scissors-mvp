@@ -20,6 +20,19 @@ def service_list(request):
         })
     return Response(services_data)
 
+# Delete a service (admin only)
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated, IsAdminUserCustom])
+def service_delete(request, service_id):
+    try:
+        service = Service.objects.get(id=service_id)
+    except Service.DoesNotExist:
+        return Response({'error': 'Service not found'}, status=404)
+    service.active = False
+    service.save()
+    
+    return Response({'message': 'Service deleted successfully'})
+
 # Create a new service (admin only)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])

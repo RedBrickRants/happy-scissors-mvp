@@ -83,6 +83,34 @@ const Staff = ({ token }) => {
     })
   }
 
+  const handleDeleteStaff = async (staffId, staffName) => {
+    if (!window.confirm(`Are you sure you want to delete ${staffName}?`)) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`http://localhost:8000/api/staff/${staffId}/delete/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        alert('Staff member deleted successfully!');
+        // Refresh the staff list
+        fetchStaff();
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error deleting staff:', error);
+      alert('Failed to delete staff member');
+    }
+  };
+
   if (loading) return <div>Loading staff...</div>
 
   return (
@@ -153,6 +181,21 @@ const Staff = ({ token }) => {
               <td>{staffMember.expertise}</td>
               <td>{staffMember.services.join(', ')}</td>
               <td>{staffMember.is_active ? 'Active' : 'Inactive'}</td>
+              <td>
+                  <button 
+                    onClick={() => handleDeleteStaff(staffMember.id, staffMember.name)}
+                    style={{
+                      background: '#f56565',
+                      color: 'white',
+                      border: 'none',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Delete
+                  </button>
+              </td>
             </tr>
           ))}
         </tbody>
