@@ -1,5 +1,6 @@
 from django.db import models
 
+# Service model representing a service offered
 class Service(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)

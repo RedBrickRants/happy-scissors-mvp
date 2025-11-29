@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .models import Service
 from staff.permissions import IsAdminUserCustom
 
+# List all active services
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def service_list(request):
@@ -19,6 +20,7 @@ def service_list(request):
         })
     return Response(services_data)
 
+# Create a new service (admin only)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
 def service_create(request):

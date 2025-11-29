@@ -6,6 +6,7 @@ from datetime import datetime
 from .models import Appointment
 from staff.permissions import IsAdminUserCustom
 
+# List all appointments, with optional date filtering
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
 def appointment_list(request):
@@ -34,6 +35,7 @@ def appointment_list(request):
     
     return Response(appointments_data)
 
+# Update appointment status (admin only)
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
 def update_appointment(request, pk):

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+#user types for authorizathion
 class CustomUser(AbstractUser):
     USER_TYPE_CHOICES = (
         ('client', 'Client'),

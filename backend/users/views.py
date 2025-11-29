@@ -7,6 +7,7 @@ from staff.permissions import IsAdminUserCustom
 
 User = get_user_model()
 
+#allows for admin to see all clients
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
 def client_list(request):
@@ -21,6 +22,7 @@ def client_list(request):
         })
     return Response(clients_data)
 
+#allows for admin to see all appointments of a specific client
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
 def client_appointments(request, client_id):

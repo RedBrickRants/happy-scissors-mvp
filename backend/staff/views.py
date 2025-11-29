@@ -8,6 +8,7 @@ from staff.permissions import IsAdminUserCustom
 
 User = get_user_model()
 
+# allows admin users to view and create staff members
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
 def staff_list(request):
@@ -26,6 +27,7 @@ def staff_list(request):
     
     return Response(staff_data)
 
+#allows admin users to create staff members
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
 def staff_create(request):

@@ -8,6 +8,7 @@ from staff.models import Staff
 from services.models import Service
 from staff.permissions import IsAdminUserCustom
 
+#allows for business stats to be viewed on dashboard
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
 def dashboard_overview(request):
