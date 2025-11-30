@@ -11,32 +11,32 @@ from services.models import Service
 
 # List all appointments, with optional date filtering
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, IsAdminUserCustom])
+@permission_classes([IsAuthenticated])
 def appointment_list(request):
-    date_str = request.GET.get('date')
-    if date_str:
-        try:
-            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-            appointments = Appointment.objects.filter(scheduled_time__date=target_date)
-        except ValueError:
-            return Response({'error': 'Invalid date format'}, status=400)
+    """
+    Get appointments - clients see only their own, admin/staff see all
+    """
+    if request.user.is_admin_user() or request.user.is_staff_user():
+        # Admin/Staff can see all appointments
+        appointments = Appointment.objects.all().select_related('client', 'staff__user', 'service')
     else:
-        appointments = Appointment.objects.all()
+        # Clients can only see their own appointments
+        appointments = Appointment.objects.filter(client=request.user).select_related('client', 'staff__user', 'service')
     
-    appointments_data = []
-    for appointment in appointments.select_related('client', 'staff__user', 'service'):
-        appointments_data.append({
+    appointment_data = []
+    for appointment in appointments:
+        appointment_data.append({
             'id': appointment.id,
-            'client_name': appointment.client.username,
+            'client_name': f"{appointment.client.first_name} {appointment.client.last_name}",
+            'staff_name': f"{appointment.staff.user.first_name} {appointment.staff.user.last_name}",
             'service_name': appointment.service.name,
-            'staff_name': appointment.staff.user.username,
-            'start_time': appointment.scheduled_time.isoformat(),
-            'end_time': appointment.end_time.isoformat() if appointment.end_time else None,
+            'scheduled_time': appointment.scheduled_time,
+            'end_time': appointment.end_time,
             'status': appointment.status,
-            'price': float(appointment.service.price)
+            'notes': appointment.notes
         })
     
-    return Response(appointments_data)
+    return Response(appointment_data)
 
 # Update appointment status (admin only)
 @api_view(['PATCH'])

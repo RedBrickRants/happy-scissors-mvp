@@ -21,7 +21,7 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login-container">
-      <h2>Happy Scissors Salon - Admin Login</h2>
+      <h2>Happy Scissors Salon Login</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <input

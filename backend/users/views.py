@@ -93,3 +93,43 @@ def register_user(request):
         
     except Exception as e:
         return Response({'error': str(e)}, status=400)
+    
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    """
+    Get or update user profile
+    """
+    user = request.user
+    
+    if request.method == 'GET':
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'phone': user.phone,
+            'user_type': user.user_type
+        })
+    
+    elif request.method == 'PUT':
+        # Update user profile
+        user.first_name = request.data.get('first_name', user.first_name)
+        user.last_name = request.data.get('last_name', user.last_name)
+        user.phone = request.data.get('phone', user.phone)
+        user.email = request.data.get('email', user.email)
+        user.save()
+        
+        return Response({
+            'message': 'Profile updated successfully',
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'phone': user.phone,
+                'user_type': user.user_type
+            }
+        })
