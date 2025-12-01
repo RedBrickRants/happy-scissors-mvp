@@ -10,7 +10,7 @@ User = get_user_model()
 
 # allows admin users to view and create staff members
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, IsAdminUserCustom])
+@permission_classes([IsAuthenticated])
 def staff_list(request):
     staff_members = Staff.objects.filter(is_active=True).select_related('user')
     

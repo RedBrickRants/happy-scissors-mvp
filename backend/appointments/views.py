@@ -75,10 +75,10 @@ def make_appointment(request):
         
         service_id = request.data.get('service')
         staff_id = request.data.get('staff')
-        scheduled_time = request.data.get('scheduled_time')
+        scheduled_time_str = request.data.get('scheduled_time')
         notes = request.data.get('notes', '')
 
-        if not service_id or not staff_id or not scheduled_time:
+        if not service_id or not staff_id or not scheduled_time_str:
             return Response({'error': 'Service, Staff, and Scheduled Time are required'}, status=400)
         
         try:
@@ -94,7 +94,9 @@ def make_appointment(request):
             return Response({'error': 'Selected staff is not qualified for the chosen service'}, status=400)   
 
         try:
-            scheduled_time = datetime.fromisoformat(scheduled_time)
+            scheduled_time = datetime.fromisoformat(scheduled_time_str.replace('Z', '+00:00'))
+            scheduled_time = timezone.make_aware(scheduled_time)
+            
         except (ValueError, AttributeError):     
             return Response({'error': 'Invalid scheduled time format'}, status=400)
         
