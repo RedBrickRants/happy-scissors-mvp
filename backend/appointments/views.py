@@ -101,7 +101,9 @@ def make_appointment(request):
         except (ValueError, AttributeError):     
             return Response({'error': 'Invalid scheduled time format'}, status=400)
         
-        if scheduled_time < timezone.now():
+        now = timezone.localtime()
+        
+        if scheduled_time <= now:
             return Response({'error': 'Scheduled time must be in the future'}, status=400)
         
         existing_appointments = Appointment.objects.filter(
@@ -127,5 +129,5 @@ def make_appointment(request):
             status='booked'
         )
         return Response({'message': 'Appointment created successfully', 'appointment_id': appointment.id})
-    except Exception:
-        return Response({'error': str(Exception)}, status=500)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)

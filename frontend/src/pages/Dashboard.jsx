@@ -39,7 +39,7 @@ const Dashboard = ({ token }) => {
         </div>
         <div className="stat-card">
           <h3>Today's Revenue</h3>
-          <p className="stat-value">${stats.todays_revenue}</p>
+          <p className="stat-value">${stats.today_revenue}</p>
         </div>
         <div className="stat-card">
           <h3>Total Revenue</h3>
