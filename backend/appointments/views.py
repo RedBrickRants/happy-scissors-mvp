@@ -28,8 +28,9 @@ def appointment_list(request):
         appointment_data.append({
             'id': appointment.id,
             'client_name': f"{appointment.client.first_name} {appointment.client.last_name}",
-            'staff_name': f"{appointment.staff.user.first_name} {appointment.staff.user.last_name}",
+            'staff': f"{appointment.staff.user.username}",
             'service_name': appointment.service.name,
+            'date': appointment.date,
             'scheduled_time': appointment.scheduled_time,
             'end_time': appointment.end_time,
             'status': appointment.status,
@@ -96,7 +97,7 @@ def make_appointment(request):
         try:
             scheduled_time = datetime.fromisoformat(scheduled_time_str.replace('Z', '+00:00'))
             scheduled_time = timezone.make_aware(scheduled_time)
-            
+
         except (ValueError, AttributeError):     
             return Response({'error': 'Invalid scheduled time format'}, status=400)
         
@@ -121,6 +122,7 @@ def make_appointment(request):
             staff=staff,
             service=service,
             scheduled_time=scheduled_time,
+            date=scheduled_time.date(),
             notes=notes,
             status='booked'
         )

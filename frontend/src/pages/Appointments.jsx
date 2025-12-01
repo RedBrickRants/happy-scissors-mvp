@@ -53,11 +53,11 @@ const Appointments = ({ token }) => {
       <table>
         <thead>
           <tr>
+            <th>Date</th>
             <th>Time</th>
             <th>Client</th>
             <th>Service</th>
             <th>Staff</th>
-            <th>Price</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -65,11 +65,11 @@ const Appointments = ({ token }) => {
         <tbody>
           {appointments.map((appointment) => (
             <tr key={appointment.id}>
-              <td>{new Date(appointment.start_time).toLocaleTimeString()}</td>
+              <td>{new Date(appointment.date).toLocaleDateString()}</td>
+              <td>{new Date(appointment.scheduled_time).toLocaleTimeString()}</td>
               <td>{appointment.client_name}</td>
               <td>{appointment.service_name}</td>
-              <td>{appointment.staff_name}</td>
-              <td>${appointment.price}</td>
+              <td>{appointment.staff}</td>
               <td>
                 <span className={`status-badge status-${appointment.status}`}>
                   {appointment.status}

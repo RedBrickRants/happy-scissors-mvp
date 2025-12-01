@@ -15,6 +15,7 @@ class Appointment(models.Model):
     client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    date = models.DateField(blank=True, null=True)
     scheduled_time = models.DateTimeField()
     end_time = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='booked')

@@ -188,7 +188,7 @@ const ClientDashboard = ({ token }) => {
               {appointments.map(appointment => (
                 <tr key={appointment.id}>
                   <td>{appointment.service_name}</td>
-                  <td>{appointment.staff_name}</td>
+                  <td>{appointment.staff}</td>
                   <td>{new Date(appointment.scheduled_time).toLocaleString()}</td>
                   <td>
                     <span style={{ 
