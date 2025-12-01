@@ -14,10 +14,13 @@ from staff.permissions import IsAdminUserCustom
 def dashboard_overview(request):
     today = timezone.now().date()
     todays_appointments = Appointment.objects.filter(scheduled_time__date=today)
+    total_appointments = Appointment.objects.all()
     
     stats = {
         'today_appointments_count': todays_appointments.count(),
+        'total_appointments_count': total_appointments.count(),
         'today_revenue': float(sum(app.service.price for app in todays_appointments.filter(status='completed'))),
+        'total_revenue': float(sum(app.service.price for app in total_appointments.filter(status='completed'))),
         'total_staff': Staff.objects.filter(is_active=True).count(),
         'total_services': Service.objects.filter(active=True).count(),
         'appointments_sample': [

@@ -34,8 +34,16 @@ const Dashboard = ({ token }) => {
           <p className="stat-value">{stats.today_appointments_count}</p>
         </div>
         <div className="stat-card">
+          <h3>Total Appointments</h3>
+          <p className="stat-value">{stats.total_appointments_count}</p>
+        </div>
+        <div className="stat-card">
           <h3>Today's Revenue</h3>
-          <p className="stat-value">${stats.today_revenue}</p>
+          <p className="stat-value">${stats.todays_revenue}</p>
+        </div>
+        <div className="stat-card">
+          <h3>Total Revenue</h3>
+          <p className="stat-value">${stats.total_revenue}</p>
         </div>
         <div className="stat-card">
           <h3>Total Staff</h3>
