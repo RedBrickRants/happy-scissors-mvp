@@ -51,3 +51,33 @@ def service_create(request):
     )
     
     return Response({'message': 'Service created successfully', 'service_id': service.id})
+
+# Edit an existing service (admin only)
+@api_view(['GET', 'PUT'])  
+@permission_classes([IsAuthenticated, IsAdminUserCustom])
+def service_edit(request, service_id):
+    try:
+        service = Service.objects.get(id=service_id)
+    except Service.DoesNotExist:
+        return Response({'error': 'Service not found'}, status=404)
+    
+    if request.method == 'GET':
+        return Response({
+            'id': service.id,
+            'name': service.name,
+            'duration': service.duration,
+            'price': float(service.price)
+        })
+    
+    elif request.method == 'PUT':
+        # Update fields
+        service.name = request.data.get('name', service.name)
+        service.duration = request.data.get('duration', service.duration)
+        service.price = request.data.get('price', service.price)
+        
+        try:
+            service.save()
+            return Response({'message': 'Service updated successfully'})
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
