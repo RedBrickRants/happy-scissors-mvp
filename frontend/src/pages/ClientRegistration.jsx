@@ -3,8 +3,7 @@ import axios from 'axios'
 
 const ClientRegistration = ({ onRegistrationSuccess }) => {
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
+    email: '',           // REMOVED: username
     password: '',
     confirmPassword: '',
     first_name: '',
@@ -13,6 +12,8 @@ const ClientRegistration = ({ onRegistrationSuccess }) => {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [generatedUsername, setGeneratedUsername] = useState('')
 
   const handleChange = (e) => {
     setFormData({
@@ -39,8 +40,8 @@ const ClientRegistration = ({ onRegistrationSuccess }) => {
     setLoading(true)
     
     try {
+      // Send registration request WITHOUT username
       const response = await axios.post('http://localhost:8000/api/users/register/', {
-        username: formData.username,
         email: formData.email,
         password: formData.password,
         first_name: formData.first_name,
@@ -48,18 +49,19 @@ const ClientRegistration = ({ onRegistrationSuccess }) => {
         phone: formData.phone
       })
 
-      alert('Registration successful! You can now login.')
+      // Show success modal with generated username
+      setGeneratedUsername(response.data.generated_username)
+      setShowSuccessModal(true)
       
       // Clear form
       setFormData({
-        username: '', email: '', password: '', confirmPassword: '',
-        first_name: '', last_name: '', phone: ''
+        email: '', 
+        password: '', 
+        confirmPassword: '',
+        first_name: '', 
+        last_name: '', 
+        phone: ''
       })
-      
-      // If callback provided, call it
-      if (onRegistrationSuccess) {
-        onRegistrationSuccess()
-      }
       
     } catch (error) {
       console.error('Registration failed:', error)
@@ -67,6 +69,26 @@ const ClientRegistration = ({ onRegistrationSuccess }) => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const closeSuccessModal = () => {
+    setShowSuccessModal(false)
+    setGeneratedUsername('')
+    
+    // If callback provided, call it
+    if (onRegistrationSuccess) {
+      onRegistrationSuccess()
+    }
+  }
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedUsername)
+      .then(() => {
+        alert('Username copied to clipboard!')
+      })
+      .catch(err => {
+        console.error('Failed to copy:', err)
+      })
   }
 
   return (
@@ -99,15 +121,6 @@ const ClientRegistration = ({ onRegistrationSuccess }) => {
               required
             />
           </div>
-          
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
           
           <input
             type="email"
@@ -144,6 +157,10 @@ const ClientRegistration = ({ onRegistrationSuccess }) => {
             required
           />
           
+          <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
+            <em>Note: Your username will be automatically generated from your name</em>
+          </div>
+          
           <button 
             type="submit" 
             className="btn-primary"
@@ -153,6 +170,111 @@ const ClientRegistration = ({ onRegistrationSuccess }) => {
           </button>
         </form>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '8px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
+          }}>
+            <h2 style={{ marginTop: 0, color: '#10B981' }}> Account Created Successfully!</h2>
+            
+            <p>Your username has been automatically generated:</p>
+            
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: '#f8f9fa',
+              padding: '1rem',
+              borderRadius: '6px',
+              margin: '1.5rem 0',
+              border: '1px solid #e9ecef'
+            }}>
+              <strong style={{ fontSize: '1.2rem', fontFamily: 'monospace' }}>
+                {generatedUsername}
+              </strong>
+              <button
+                onClick={copyToClipboard}
+                style={{
+                  backgroundColor: '#3B82F6',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Copy
+              </button>
+            </div>
+            
+            <div style={{ 
+              backgroundColor: '#fef3c7', 
+              padding: '1rem', 
+              borderRadius: '6px',
+              marginBottom: '1.5rem'
+            }}>
+              <p style={{ margin: 0, color: '#92400E' }}>
+                 <strong>Important:</strong> Please save this username. 
+                You'll need it along with your password to log in.
+              </p>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button
+                onClick={() => {
+                  window.location.href = '/login';
+                }}
+                style={{
+                  flex: 1,
+                  backgroundColor: '#10B981',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.75rem',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '1rem'
+                }}
+              >
+                Go to Login
+              </button>
+              
+              <button
+                onClick={closeSuccessModal}
+                style={{
+                  flex: 1,
+                  backgroundColor: '#6B7280',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.75rem',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '1rem'
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -4,9 +4,41 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from appointments.models import Appointment
 from staff.permissions import IsAdminUserCustom
+import time
+import re
 
 
 User = get_user_model()
+
+def generate_username(first_name, last_name):
+    """Generate a unique username from first and last name"""
+    # Clean and lowercase the names
+    clean_first = re.sub(r'[^a-zA-Z0-9]', '', first_name).lower()
+    clean_last = re.sub(r'[^a-zA-Z0-9]', '', last_name).lower()
+    
+    # Try different patterns
+    patterns = [
+        f"{clean_first}.{clean_last}",      # john.smith
+        f"{clean_first[0]}{clean_last}",    # jsmith
+        f"{clean_first}{clean_last[0]}",    # johns
+        f"{clean_first}_{clean_last}",      # john_smith
+        f"{clean_first}{clean_last}",       # johnsmith
+    ]
+    
+    for pattern in patterns:
+        if len(pattern) >= 4:  # Minimum username length
+            base = pattern
+            if not User.objects.filter(username=base).exists():
+                return base
+            
+            # Try with numbers if base exists
+            for i in range(1, 100):
+                numbered = f"{base}{i}"
+                if not User.objects.filter(username=numbered).exists():
+                    return numbered
+    
+    # Fallback: timestamp-based
+    return f"user{int(time.time())}"
 
 #allows for admin to see all clients
 @api_view(['GET'])
@@ -51,24 +83,27 @@ def client_appointments(request, client_id):
 def register_user(request):
     """
     Public endpoint for client registration
+    Generates username automatically from first and last name
     """
-    username = request.data.get('username')
     email = request.data.get('email')
     password = request.data.get('password')
-    first_name = request.data.get('first_name', '')
-    last_name = request.data.get('last_name', '')
+    first_name = request.data.get('first_name', '').strip()
+    last_name = request.data.get('last_name', '').strip()
     phone = request.data.get('phone', '')
     
-    if not username or not email or not password:
-        return Response({'error': 'Username, email, and password are required'}, status=400)
+    if not email or not password:
+        return Response({'error': 'Email and password are required'}, status=400)
     
-    if User.objects.filter(username=username).exists():
-        return Response({'error': 'Username already exists'}, status=400)
+    if not first_name or not last_name:
+        return Response({'error': 'First and last name are required'}, status=400)
     
     if User.objects.filter(email=email).exists():
         return Response({'error': 'Email already exists'}, status=400)
     
     try:
+        # Generate username from first and last name
+        username = generate_username(first_name, last_name)
+        
         # Create user with client type
         user = User.objects.create_user(
             username=username,
@@ -81,7 +116,8 @@ def register_user(request):
         )
         
         return Response({
-            'message': 'Client account created successfully! Please login.',
+            'message': 'Client account created successfully!',
+            'generated_username': username,  # Send back the generated username
             'user': {
                 'id': user.id,
                 'username': user.username,

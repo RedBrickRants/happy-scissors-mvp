@@ -29,7 +29,6 @@ def staff_list(request):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
-#we can use staff_id here to delete staff member as django automatically creates id field for each model
 def staff_delete(request, staff_id):
     try:
         staff = Staff.objects.get(id=staff_id)
@@ -40,7 +39,7 @@ def staff_delete(request, staff_id):
         return Response({'error': 'Staff member not found'}, status=404)
     
 
-#allows admin users to create staff members
+# allows admin users to create staff members
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
 def staff_create(request):
@@ -77,3 +76,65 @@ def staff_create(request):
             pass
     
     return Response({'message': 'Staff created successfully', 'staff_id': staff.id})
+
+# Edit an existing staff member (admin only)
+@api_view(['GET', 'PUT'])  
+@permission_classes([IsAuthenticated, IsAdminUserCustom])
+def staff_edit(request, staff_id):
+    try:
+        staff = Staff.objects.select_related('user').get(id=staff_id)
+    except Staff.DoesNotExist:
+        return Response({'error': 'Staff not found'}, status=404)
+    
+    if request.method == 'GET':
+        return Response({
+            'id': staff.id,
+            'username': staff.user.username,
+            'email': staff.user.email,
+            'expertise': staff.expertise,
+            'services': [service.id for service in staff.services.all()],
+        })
+    
+    elif request.method == 'PUT':
+        username = request.data.get('username', staff.user.username)
+        email = request.data.get('email', staff.user.email)
+        expertise = request.data.get('expertise', staff.expertise)
+        new_password = request.data.get('password')
+        service_ids = request.data.get('services', [])
+        
+        try:
+            # Validate username uniqueness (if changed)
+            if username != staff.user.username:
+                if User.objects.filter(username=username).exclude(id=staff.user.id).exists():
+                    return Response({'error': 'Username already exists'}, status=400)
+                staff.user.username = username
+            
+            # Validate email uniqueness (if changed)
+            if email != staff.user.email:
+                if User.objects.filter(email=email).exclude(id=staff.user.id).exists():
+                    return Response({'error': 'Email already exists'}, status=400)
+                staff.user.email = email
+            
+            # Update password if provided
+            if new_password:
+                staff.user.set_password(new_password)
+            
+            staff.user.save()
+            
+            # Update Staff model fields
+            staff.expertise = expertise
+            staff.save()
+            
+            # Update services
+            staff.services.clear()
+            for service_id in service_ids:
+                try:
+                    service = Service.objects.get(id=service_id)
+                    staff.services.add(service)
+                except Service.DoesNotExist:
+                    pass
+            
+            return Response({'message': 'Staff updated successfully'})
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)

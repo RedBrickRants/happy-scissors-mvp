@@ -131,8 +131,43 @@ const Services = ({ token }) => {
               <td>{service.duration} min</td> 
               <td>${service.price}</td>
               <td>
-                <button onClick={() => handleEditService(service.id)}>Edit</button>
-                <button onClick={() => handleDeleteService(service.id, service.name)}>Delete</button>
+                <button 
+                    onClick={() => handleEditService(service.id)}
+                    style={{
+                      backgroundColor: '#3B82F6',
+                      color: 'white',
+                      border: 'none',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      marginRight: '0.5rem',
+                      fontWeight: '500',
+                      fontSize: '14px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#2563EB'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#3B82F6'}
+                  >
+                  Edit
+                </button>
+              <button 
+                      onClick={() => handleDeleteService(service.id, service.name)}
+                      style={{
+                        backgroundColor: '#EF4444',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: '500',
+                        fontSize: '14px',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#DC2626'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = '#EF4444'}
+                    >
+                Delete
+              </button>
               </td>
             </tr>
           ))}
