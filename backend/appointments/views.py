@@ -94,6 +94,9 @@ def make_appointment(request):
         if not staff.services.filter(id=service.id).exists():
             return Response({'error': 'Selected staff is not qualified for the chosen service'}, status=400)   
 
+
+    
+        #TODO: FIX DATETIME ISSUES
         try:
             scheduled_time = datetime.fromisoformat(scheduled_time_str.replace('Z', '+00:00'))
             scheduled_time = timezone.make_aware(scheduled_time)

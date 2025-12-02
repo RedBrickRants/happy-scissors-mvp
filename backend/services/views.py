@@ -38,7 +38,7 @@ def service_delete(request, service_id):
 @permission_classes([IsAuthenticated, IsAdminUserCustom])
 def service_create(request):
     name = request.data.get('name')
-    duration = request.data.get('duration_mins')
+    duration = request.data.get('duration')
     price = request.data.get('price')
     
     if not name or not duration or not price:

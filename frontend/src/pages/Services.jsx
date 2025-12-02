@@ -6,7 +6,7 @@ const Services = ({ token }) => {
   const [loading, setLoading] = useState(true)
   const [editingServiceId, setEditingServiceId] = useState(null)
   const [formMode, setFormMode] = useState('create')
-  const [formData, setFormData] = useState({ name: '', duration_mins: '', price: '' })
+  const [formData, setFormData] = useState({ name: '', duration: '', price: '' }) 
 
   useEffect(() => { fetchServices() }, [token])
 
@@ -26,22 +26,37 @@ const Services = ({ token }) => {
     try {
       if (formMode === 'edit' && editingServiceId) {
         await axios.put(`http://localhost:8000/api/services/${editingServiceId}/edit/`, {
-          name: formData.name, duration: formData.duration_mins, price: formData.price
-        }, { headers: { Authorization: `Bearer ${token}` } })
+          name: formData.name, 
+          duration: formData.duration,  
+          price: formData.price
+        }, { 
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'  // Added Content-Type
+          } 
+        })
         alert('Service updated!')
         setFormMode('create')
         setEditingServiceId(null)
       } else {
         await axios.post('http://localhost:8000/api/services/create/', {
-          name: formData.name, duration: formData.duration_mins, price: formData.price
-        }, { headers: { Authorization: `Bearer ${token}` } })
+          name: formData.name, 
+          duration: formData.duration,  
+          price: formData.price
+        }, { 
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'  // Added Content-Type
+          } 
+        })
         alert('Service created!')
       }
-      setFormData({ name: '', duration_mins: '', price: '' })
+      setFormData({ name: '', duration: '', price: '' }) 
       fetchServices()
     } catch (error) {
       console.error('Failed to save:', error)
-      alert(error.response?.data?.error || 'Error saving')
+      console.log('Full error:', error.response?.data)  // Added for debugging
+      alert(error.response?.data?.error || 'Error saving: ' + error.message)
     }
   }
 
@@ -74,7 +89,7 @@ const Services = ({ token }) => {
     if (serviceToEdit) {
       setFormData({ 
         name: serviceToEdit.name, 
-        duration_mins: serviceToEdit.duration_mins, 
+        duration: serviceToEdit.duration,  
         price: serviceToEdit.price 
       })
       setEditingServiceId(serviceId)
@@ -91,13 +106,15 @@ const Services = ({ token }) => {
       <h2>{formMode === 'edit' ? 'Edit Service' : 'Create Service'}</h2>
       <form onSubmit={handleSubmit} className="form">
         <input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
-        <input type="number" name="duration_mins" placeholder="Duration (mins)" value={formData.duration_mins} onChange={handleChange} required />
+        <input type="number" name="duration" placeholder="Duration (mins)" value={formData.duration} onChange={handleChange} required /> {/* Changed name to duration */}
         <input type="number" step="0.01" name="price" placeholder="Price" value={formData.price} onChange={handleChange} required />
         <button type="submit">{formMode === 'edit' ? 'Update' : 'Create'}</button>
         {formMode === 'edit' && (
           <button type="button" onClick={() => { 
-            setFormMode('create'); setEditingServiceId(null); setFormData({ name: '', duration_mins: '', price: '' }) 
-          }} style={{ background: '#6c757d', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', marginLeft: '1rem' }}>
+            setFormMode('create'); 
+            setEditingServiceId(null); 
+            setFormData({ name: '', duration: '', price: '' })  
+          }}>
             Cancel
           </button>
         )}
@@ -111,11 +128,11 @@ const Services = ({ token }) => {
           {services.map(service => (
             <tr key={service.id}>
               <td>{service.name}</td>
-              <td>{service.duration} min</td>
+              <td>{service.duration} min</td> 
               <td>${service.price}</td>
               <td>
-                <button onClick={() => handleEditService(service.id)} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', marginRight: '0.5rem' }}>Edit</button>
-                <button onClick={() => handleDeleteService(service.id, service.name)} style={{ background: '#f56565', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+                <button onClick={() => handleEditService(service.id)}>Edit</button>
+                <button onClick={() => handleDeleteService(service.id, service.name)}>Delete</button>
               </td>
             </tr>
           ))}
