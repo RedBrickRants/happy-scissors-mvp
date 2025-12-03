@@ -167,7 +167,8 @@ const ClientDashboard = ({ token }) => {
           padding: '2rem', 
           textAlign: 'center', 
           background: '#f5f5f5', 
-          borderRadius: '8px' 
+          borderRadius: '8px', 
+          color: '#8B5CF6'
         }}>
           <h3>No appointments yet</h3>
           <p>Book your first appointment using the button above!</p>

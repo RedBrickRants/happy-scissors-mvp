@@ -5,8 +5,39 @@ from django.contrib.auth import get_user_model
 from .models import Staff
 from services.models import Service
 from staff.permissions import IsAdminUserCustom
+import time
+import re
 
 User = get_user_model()
+def generate_username(first_name, last_name):
+    """Generate a unique username from first and last name"""
+    # Clean and lowercase the names
+    clean_first = re.sub(r'[^a-zA-Z0-9]', '', first_name).lower()
+    clean_last = re.sub(r'[^a-zA-Z0-9]', '', last_name).lower()
+    
+    # Try different patterns
+    patterns = [
+        f"{clean_first}.{clean_last}",      # john.smith
+        f"{clean_first[0]}{clean_last}",    # jsmith
+        f"{clean_first}{clean_last[0]}",    # johns
+        f"{clean_first}_{clean_last}",      # john_smith
+        f"{clean_first}{clean_last}",       # johnsmith
+    ]
+    
+    for pattern in patterns:
+        if len(pattern) >= 4:  # Minimum username length
+            base = pattern
+            if not User.objects.filter(username=base).exists():
+                return base
+            
+            # Try with numbers if base exists
+            for i in range(1, 100):
+                numbered = f"{base}{i}"
+                if not User.objects.filter(username=numbered).exists():
+                    return numbered
+    
+    # Fallback: timestamp-based
+    return f"user{int(time.time())}"
 
 # allows admin users to view and create staff members
 @api_view(['GET'])

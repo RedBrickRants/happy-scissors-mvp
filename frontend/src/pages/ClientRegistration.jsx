@@ -157,7 +157,7 @@ const ClientRegistration = ({ onRegistrationSuccess }) => {
             required
           />
           
-          <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
+          <div style={{ fontSize: '0.9rem', color: '#777', marginBottom: '1rem' }}>
             <em>Note: Your username will be automatically generated from your name</em>
           </div>
           
@@ -207,7 +207,7 @@ const ClientRegistration = ({ onRegistrationSuccess }) => {
               margin: '1.5rem 0',
               border: '1px solid #e9ecef'
             }}>
-              <strong style={{ fontSize: '1.2rem', fontFamily: 'monospace' }}>
+              <strong style={{ fontSize: '1.2rem', fontFamily: 'monospace', color: '#8B5CF6' }}>
                 {generatedUsername}
               </strong>
               <button
